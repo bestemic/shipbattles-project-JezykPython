@@ -1,16 +1,18 @@
 class GameLogic:
-    ships = [1, 1, 1, 2, 2, 3, 3, 4]
+    ships = [4, 3, 3, 2, 2, 1, 1, 1]
 
-    #TODO end function 
+    # TODO end function
     def placeShip(self, board):
         for i in self.ships:
             while(True):
                 board.printBoard()
                 print("\033[93mSetting ships\033[0m")
                 x, y, layout = self.getCords()
+                print(self.check(x, y, layout, i, board.playerBoard))
                 break
+            break
 
-    #TODO exception throwing and messeging
+    # TODO exception throwing and messeging
     def getCords(self):
         dict = {
             "a": 0,
@@ -38,7 +40,7 @@ class GameLogic:
                 if(not(cords[2] != "v" or cords[2] != "h")):
                     raise Exception("Niepoprawne dane")
                 cords[1] = int(cords[1]) - 1
-                if(cords[1]<0 or cords[1]>9):
+                if(cords[1] < 0 or cords[1] > 9):
                     raise Exception("Niepoprawne dane")
 
                 return cords[0], cords[1], cords[2]
@@ -47,10 +49,27 @@ class GameLogic:
             except Exception as e:
                 print(e)
 
-    #TODO checking coordinates are okej
-    #TODO putting ships on correct coordinates
-    #TODO playing game
-    #TODO menu
-    #TODO instructions
-    #TODO tests
-    #TODO documentation
+    def check(self, x, y, layout, ship, board):
+        if(layout == "v"):
+            if(x+ship > 10):
+                return False
+            else:
+                for i in range(ship):
+                    if board[x + i][y] != "O":
+                        return False
+        else:
+            if(y+ship > 10):
+                return False
+            else:
+                for i in range(ship):
+                    if board[x][y+1] != "O":
+                        return False
+        return True
+
+    # TODO update check?
+    # TODO putting ships on correct coordinates
+    # TODO playing game
+    # TODO menu
+    # TODO instructions
+    # TODO tests
+    # TODO documentation
