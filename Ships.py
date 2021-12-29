@@ -190,6 +190,28 @@ class GameLogic:
                 continue
         return False
     
+    # Ruch komputera
+    def computerMove(self, board):
+        while(True):
+            x, y = self.shootCompCords()
+            info = self.shoot(x, y, board.playerBoard)
+
+            if(info == "shoot"):
+                board.printBoard()
+                print("Trafiono")
+                self.isSink(board.playerBoard)
+                if self.isWin(board.playerBoard):
+                    return True
+                continue
+            elif(info == "miss"):
+                board.printBoard()
+                print("Pudło")
+                break
+            elif(info == "used"):
+                board.printBoard()
+                continue
+        return False
+
     # Wybieranie koordynatów gracza
     def shootCords(self):
         dict = {
@@ -222,6 +244,14 @@ class GameLogic:
                 print("Niepoprawne dane")
             except Exception as e:
                 print(e)
+
+    # Losowanie koordynatów komputera
+    def shootCompCords(self):
+        cords = [None, None]
+        cords[0] = rand(0, 9)
+        cords[1] = rand(0, 9)
+
+        return cords[0], cords[1]
 
     # Celowanie w tarczę
     def shoot(self, x, y, board):
@@ -259,5 +289,12 @@ game = GameLogic()
 game.placeShips(board)
 game.computerShips(board)
 board.printBoard()
-game.playerMove(board)
-input()
+while(True):
+    if(game.playerMove(board)):
+        print("Gracz wygrał")
+        break
+    input("Zakończ turę")
+    if(game.computerMove(board)):
+        print("Komputer wygrał")
+        break
+    input("Zakończ turę")
