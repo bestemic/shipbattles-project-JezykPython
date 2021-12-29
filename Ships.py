@@ -168,6 +168,86 @@ class GameLogic:
             for i in range(ship):
                 board[x][y + i] = "X"
 
+    # Ruch gracza
+    def playerMove(self, board):
+        while(True):
+            x, y = self.shootCords()
+            info = self.shoot(x, y, board.computerBoard)
+            if(info == "shoot"):
+                board.printBoard()
+                print("Trafiono")
+                self.isSink(board.computerBoard)
+                if self.isWin(board.computerBoard):
+                    return True
+                continue
+            elif(info == "miss"):
+                board.printBoard()
+                print("Pudło")
+                break
+            elif(info == "used"):
+                board.printBoard()
+                print("Już tu trafiałeś")
+                continue
+        return False
+    
+    # Wybieranie koordynatów gracza
+    def shootCords(self):
+        dict = {
+            "a": 0,
+            "b": 1,
+            "c": 2,
+            "d": 3,
+            "e": 4,
+            "f": 5,
+            "g": 6,
+            "h": 7,
+            "i": 8,
+            "j": 9
+        }
+        while (True):
+            cords = input(
+                "Podaj współrzędne oddzielone spacją: ").lower().split(" ")
+            try:
+                if(len(cords) != 2):
+                    raise Exception("Za mało argumenów")
+                if(cords[0] not in dict):
+                    raise Exception("Niepoprawne dane")
+                else:
+                    cords[0] = dict.get(cords[0])
+                cords[1] = int(cords[1]) - 1
+                if(cords[1] < 0 or cords[1] > 9):
+                    raise Exception("Niepoprawne dane")
+                return cords[0], cords[1]
+            except ValueError:
+                print("Niepoprawne dane")
+            except Exception as e:
+                print(e)
+
+    # Celowanie w tarczę
+    def shoot(self, x, y, board):
+        if(board[x][y]=="O"):
+            board[x][y] = "*"
+            return "miss"
+        elif(board[x][y]=="X"):
+            board[x][y] ="#"
+            return "shoot"
+        elif(board[x][y]=="X" or board[x][y]=="#"):
+            return "used"
+
+    # Sprawdzenie czy statek został zatopiony
+    def isSink(self, board):
+        pass
+
+    #Sprawdzenie czy gra wygrana
+    def isWin(self, board):
+        for i in range(10):
+            for j in range(10):
+                if board[i][j] == 'X':
+                    return False
+        return True
+
+
+
     # TODO update check?
     # TODO playing game
     # TODO menu
@@ -178,3 +258,6 @@ board = Board()
 game = GameLogic()
 game.placeShips(board)
 game.computerShips(board)
+board.printBoard()
+game.playerMove(board)
+input()
