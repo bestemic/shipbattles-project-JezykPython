@@ -33,7 +33,23 @@ class Board:
             print(" "+label[i], end='')
             for j in self.__playerBoard[i]:
                 if(j == 'X'):
+                    print(f" \u001B[41m\u001B[30m{j}\033[0m", end=" ")
+                elif(j == 'L'):
+                    print(f" \u001B[42m\u001B[30m{j}\033[0m", end=" ")
+                elif(j == 'S'):
+                    print(f" \u001B[43m\u001B[30m{j}\033[0m", end=" ")
+                elif(j == 'N'):
                     print(f" \u001B[44m\u001B[30m{j}\033[0m", end=" ")
+                elif(j == 'P'):
+                    print(f" \u001B[45m\u001B[30m{j}\033[0m", end=" ")
+                elif(j == 'K'):
+                    print(f" \u001B[46m\u001B[30m{j}\033[0m", end=" ")
+                elif(j == 'Z'):
+                    print(f" \u001B[47m\u001B[30m{j}\033[0m", end=" ")
+                elif(j == 'F'):
+                    print(f" \u001B[100m\u001B[30m{j}\033[0m", end=" ")
+                elif(j == 'T'):
+                    print(f" \u001B[105m\u001B[30m{j}\033[0m", end=" ")
                 else:
                     print(" " + j, end=" ")
 
@@ -42,8 +58,28 @@ class Board:
             print(" "+label[i], end='')
             for j in self.__computerBoard[i]:
                 if(j == 'X'):
+                    print(f" \u001B[41m\u001B[30m{j}\033[0m", end=" ")
+                elif(j == 'L'):
+                    print(f" \u001B[42m\u001B[30m{j}\033[0m", end=" ")
+                elif(j == 'S'):
+                    print(f" \u001B[43m\u001B[30m{j}\033[0m", end=" ")
+                elif(j == 'N'):
                     print(f" \u001B[44m\u001B[30m{j}\033[0m", end=" ")
+                elif(j == 'P'):
+                    print(f" \u001B[45m\u001B[30m{j}\033[0m", end=" ")
+                elif(j == 'K'):
+                    print(f" \u001B[46m\u001B[30m{j}\033[0m", end=" ")
+                elif(j == 'Z'):
+                    print(f" \u001B[47m\u001B[30m{j}\033[0m", end=" ")
+                elif(j == 'F'):
+                    print(f" \u001B[100m\u001B[30m{j}\033[0m", end=" ")
+                elif(j == 'T'):
+                    print(f" \u001B[105m\u001B[30m{j}\033[0m", end=" ")
                 else:
+                    # if(j=="O" or j == "*"):
+                    #     print(" " + j, end=" ")
+                    # else:
+                    #     print(" " + "O", end=" ")
                     print(" " + j, end=" ")
 
             print()
@@ -69,17 +105,42 @@ class Board:
 
 
 class GameLogic:
-    ships = [4, 3, 3, 2, 2, 1, 1, 1]
+    ships = {
+        "Lotniskowiec": (4, 'L'),
+        "Szturmowiec": (3, 'S'),
+        "Niszczyciel": (3, 'N'),
+        "Fregata": (2, 'F'),
+        "Pancernik": (2, 'P'),
+        "Kuter": (1, 'K'),
+        "Zbiornikowiec": (1, 'Z'),
+        "Tralowiec": (1, 'T'),
+    }
+
+    __trafienie = False
+    __next = {}
+    __traf = {
+        "L" : [], 
+        "S" : [], 
+        "N" : [], 
+        "F" : [], 
+        "P" : [], 
+        "T" : [], 
+        "Z" : [], 
+        "K" : []
+    }
+
+    skrot = ["L", "S", "N", "F", "P", "T", "Z", "K"]
 
     # Wstawianie statków gracza
     def placeShips(self, board):
-        for ship in self.ships:
+        for ship in self.ships.keys():
             while(True):
                 board.printBoard()
-                print(f"\033[93mSetting ships {ship}\033[0m")
+                info = self.ships[ship]
+                print(f"\033[93mUstawianie: {ship} {info[0]} masztowy\033[0m")
                 x, y, layout = self.getCords()
-                if(self.check(x, y, layout, ship, board.playerBoard)):
-                    self.placeShip(x, y, layout, ship, board.playerBoard)
+                if(self.check(x, y, layout, info[0], board.playerBoard)):
+                    self.placeShip(x, y, layout, info, board.playerBoard)
                     break
                 else:
                     print("Nie można wstawić statku w to miejsce")
@@ -88,11 +149,12 @@ class GameLogic:
 
     # Wstawianie statków komputera
     def computerShips(self, board):
-        for ship in self.ships:
+        for ship in self.ships.keys():
             while(True):
                 x, y, layout = self.getCompCords()
-                if(self.check(x, y, layout, ship, board.computerBoard)):
-                    self.placeShip(x, y, layout, ship, board.computerBoard)
+                info = self.ships[ship]
+                if(self.check(x, y, layout, info[0], board.computerBoard)):
+                    self.placeShip(x, y, layout, info, board.computerBoard)
                     break
 
     # TODO exception throwing and messeging
@@ -162,43 +224,51 @@ class GameLogic:
     # Dodanie statku na planszę
     def placeShip(self, x, y, layout, ship, board):
         if layout == 'v':
-            for i in range(ship):
-                board[x + i][y] = "X"
+            for i in range(ship[0]):
+                board[x + i][y] = ship[1]
         else:
-            for i in range(ship):
-                board[x][y + i] = "X"
+            for i in range(ship[0]):
+                board[x][y + i] = ship[1]
 
+    g = 0
     # Ruch gracza
     def playerMove(self, board):
         while(True):
             x, y = self.shootCords()
             info = self.shoot(x, y, board.computerBoard)
-            if(info == "shoot"):
+            if(info != "used" and info !="miss"):
                 board.printBoard()
+                self.g+=1
                 print("Trafiono")
-                self.isSink(board.computerBoard)
+                self.isSinkplayer(board.computerBoard)
                 if self.isWin(board.computerBoard):
                     return True
                 continue
             elif(info == "miss"):
                 board.printBoard()
                 print("Pudło")
+                self.g+=1
                 break
             elif(info == "used"):
                 board.printBoard()
                 print("Już tu trafiałeś")
                 continue
         return False
-    
+
+    i = 0
+
     # Ruch komputera
     def computerMove(self, board):
         while(True):
             x, y = self.shootCompCords()
             info = self.shoot(x, y, board.playerBoard)
-
-            if(info == "shoot"):
+            if(info != "used" and info !="miss"):
                 board.printBoard()
                 print("Trafiono")
+                self.i += 1
+                # input()
+                self.__trafienie = True
+                self.what(info, x, y)
                 self.isSink(board.playerBoard)
                 if self.isWin(board.playerBoard):
                     return True
@@ -206,11 +276,47 @@ class GameLogic:
             elif(info == "miss"):
                 board.printBoard()
                 print("Pudło")
+                self.i += 1
                 break
             elif(info == "used"):
                 board.printBoard()
                 continue
         return False
+
+    def what(self, info, x, y):
+        ile = {"L" : 4, "S" : 3, "N" : 3, "F" : 2, "P" : 2, "T" : 1, "Z" : 1, "K" : 1}
+        if(len(self.__traf[info])==0):
+            self.__traf[info].append((x, y))
+            tmp = []
+            for i in range(1, ile[info]):
+                if(x-i>=0):
+                    tmp.append((x-i, y))
+                if(x+i<=9):
+                    tmp.append((x+i, y))
+                if(y-i>=0):
+                    tmp.append((x, y-i))
+                if(y+i<=9):
+                    tmp.append((x, y+i))
+            self.__next[info] = tmp
+        # elif(len(self.__traf[info])==1):
+        #     tmp = self.__traf[info]
+        #     print(self.__next)
+        #     lista = self.__next[info]
+        #     print("Poprzedni", tmp)
+        #     if(tmp[0][0]==x):
+        #         for l in lista:
+        #             if(l[0]!=x):
+        #                 lista.remove(l)
+        #     elif(tmp[0][1]==y):
+                
+        #         for l in lista:
+        #             if(l[1]!=y):
+        #                 lista.remove(l)
+        #     self.__next[info] = lista
+        #     print(self.__next)
+        #     # input()
+
+
 
     # Wybieranie koordynatów gracza
     def shootCords(self):
@@ -247,39 +353,74 @@ class GameLogic:
 
     # Losowanie koordynatów komputera
     def shootCompCords(self):
+        if(self.__trafienie):
+            if(len(self.__next) == 0):
+                self.__trafienie = False
+            else:
+                cords = self.__next.get(next(iter(self.__next)))[0]
+                self.__next.get(next(iter(self.__next))).remove(cords)
+                return cords[0], cords[1]
+
         cords = [None, None]
         cords[0] = rand(0, 9)
         cords[1] = rand(0, 9)
-
         return cords[0], cords[1]
 
     # Celowanie w tarczę
     def shoot(self, x, y, board):
-        if(board[x][y]=="O"):
+        if(board[x][y] == "O"):
             board[x][y] = "*"
             return "miss"
-        elif(board[x][y]=="X"):
-            board[x][y] ="#"
-            return "shoot"
-        elif(board[x][y]=="X" or board[x][y]=="#"):
+        elif(not(board[x][y] == "O" or board[x][y] == "X" or board[x][y] == "*")):
+            tmp = board[x][y]
+            board[x][y] = "X"
+            return tmp
+        elif(board[x][y] == "*" or board[x][y] == "X"):
             return "used"
 
     # Sprawdzenie czy statek został zatopiony
     def isSink(self, board):
-        pass
+        
+        
+        for ship in self.skrot:
+            zatop = True
+            for i in range(10):
+                for j in range(10):
+                    if board[i][j] == ship:
+                        zatop = False
+            if(zatop):
+                print("Zatopiono", ship)
+                self.skrot.remove(ship)
+                self.__next.pop(ship)
+                # input()
+                break
 
-    #Sprawdzenie czy gra wygrana
+    def isSinkplayer(self, board):
+        
+        
+        for ship in self.skrot:
+            zatop = True
+            for i in range(10):
+                for j in range(10):
+                    if board[i][j] == ship:
+                        zatop = False
+            if(zatop):
+                print("Zatopiono", ship)
+                # self.skrot.remove(ship)
+                # self.__next.pop(ship)
+                # input()
+                break
+
+
+    # Sprawdzenie czy gra wygrana
     def isWin(self, board):
         for i in range(10):
             for j in range(10):
-                if board[i][j] == 'X':
+                if board[i][j] in ["L", "S", "N", "F", "P", "T", "Z", "K"]:
                     return False
         return True
 
-
-
     # TODO update check?
-    # TODO playing game
     # TODO menu
     # TODO instructions
 
@@ -289,12 +430,21 @@ game = GameLogic()
 game.placeShips(board)
 game.computerShips(board)
 board.printBoard()
+
+
+
+
+
 while(True):
-    if(game.playerMove(board)):
-        print("Gracz wygrał")
-        break
-    input("Zakończ turę")
+    # if(game.playerMove(board)):
+    #     print("Gracz wygrał")
+    #     break
+    # input("Zakończ turę")
+    
     if(game.computerMove(board)):
         print("Komputer wygrał")
         break
-    input("Zakończ turę")
+    # input("Zakończ turę")
+
+print(game.i)
+print(game.g)
