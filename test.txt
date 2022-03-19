@@ -1,8 +1,0 @@
-A 1 v
-b 4 h
-d 4 h
-a 9 v
-h 4 v
-j 10 h
-g 9 h
-f 1 v
